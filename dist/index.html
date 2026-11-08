@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111b18">
+  <meta name="description" content="A local AI workspace for your Windows PC and phone.">
+  <title>TandemForge</title>
+  <link rel="icon" href="/mark.svg">
+  <link rel="apple-touch-icon" href="/icon-180.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/studio.css">
+  <script defer src="/locale.js"></script>
+  <script defer src="/settings.js"></script>
+  <script defer src="/studio.js"></script>
+</head>
+<body>
+  <section class="login" id="login" aria-labelledby="login-title" hidden>
+    <div class="login-illustration" aria-hidden="true"></div>
+    <form class="login-card" id="login-form">
+      <div class="locale-switch"><button type="button" data-language="en">EN</button><button type="button" data-language="th">ไทย</button></div>
+      <img class="login-mark" src="/mark.svg" alt="" width="55" height="55">
+      <p class="eyebrow">พื้นที่ทำงานส่วนตัว</p>
+      <h1 id="login-title">TandemForge</h1>
+      <p>ใส่รหัสเข้าแอป เบราว์เซอร์จะจำการเข้าสู่ระบบไว้ 30 วัน</p>
+      <label for="access-code">รหัสเข้าใช้งาน</label>
+      <input id="access-code" autocomplete="current-password" type="password" required maxlength="10" placeholder="••••••">
+      <button class="primary" type="submit">เข้าใช้งาน <span aria-hidden="true">↗</span></button>
+      <p class="error" id="login-error" role="alert"></p>
+    </form>
+  </section>
+  <div class="shell" id="shell" hidden>
+    <aside class="sidebar">
+      <div class="brand"><img src="/mark.svg" alt="" width="38" height="38"><div><strong>TandemForge</strong><span>LOCAL AI</span></div></div>
+      <p class="nav-label">พื้นที่ทำงาน</p>
+      <nav id="nav" aria-label="เมนูหลัก"></nav>
+      <div class="side-foot"><span class="dot"></span> ประมวลผลบนเครื่อง</div>
+    </aside>
+    <main>
+      <header class="top">
+        <div class="mobile-brand"><img src="/mark.svg" alt="" width="28" height="28"> TandemForge</div>
+        <div class="top-location">สตูดิโอ <span>/</span> <strong id="top-tab">ภาพรวม</strong></div>
+        <div class="top-tools">
+          <div class="connection" id="connection"><span class="dot muted"></span><span>กำลังเชื่อมต่อ</span></div>
+          <div class="locale-switch"><button type="button" data-language="en">EN</button><button type="button" data-language="th">ไทย</button></div>
+        </div>
+      </header>
+      <div class="content">
+        <div class="notice" id="notice" role="status" hidden></div>
+        <section class="page" id="home" aria-labelledby="home-title">
+          <div class="forge-hero">
+            <img src="/cover.webp" alt="" fetchpriority="high" width="1536" height="1024">
+            <div class="forge-hero-copy">
+              <p class="eyebrow">สตูดิโอ AI บนเครื่องคุณ</p>
+              <h1 id="home-title">สร้างบนคอม<br>สั่งจากมือถือ</h1>
+              <p>คุยกับโมเดล สร้างภาพ และติดตามงานจากพื้นที่เดียว</p>
+              <div class="hero-actions">
+                <button class="primary" type="button" data-tab="chat">เริ่มคุย ↗</button>
+                <button class="hero-secondary" type="button" data-tab="create">เปิดห้องสร้างภาพ</button>
+              </div>
+            </div>
+          </div>
+          <section class="panel readiness">
+            <div id="home-status" aria-live="polite"></div>
+            <details>
+              <summary>เตรียมเอนจินบน Windows</summary>
+              <p>วาง llama-server และไฟล์ที่มากับเอนจินในโฟลเดอร์ bin แล้ววางไฟล์ GGUF ในโฟลเดอร์ models ของ TandemForge จากนั้นเปิดแอปใหม่</p>
+              <p>สำหรับงานภาพ เปิด ComfyUI ที่พอร์ต 8188 พร้อมโมเดล FLUX.2 Klein 4B</p>
+            </details>
+          </section>
+          <section class="panel model-guide" aria-labelledby="model-guide-title">
+            <div class="section-head">
+              <div><h2 id="model-guide-title">หาโมเดลที่เหมาะกับเครื่อง</h2>
+                <p class="hint">ดูตัวเลือกตาม RAM, VRAM และพื้นที่เก็บโมเดล</p></div>
+              <button class="primary" type="button" id="model-guide-scan" aria-controls="model-guide-results">ตรวจสเปก</button>
+            </div>
+            <div id="model-guide-results" aria-live="polite" hidden></div>
+          </section>
+          <div class="home-grid">
+            <section class="panel home-queue">
+              <div class="section-head"><h2>คิวล่าสุด</h2><button class="text-button" type="button" data-tab="library">ดูทั้งหมด ↗</button></div>
+              <div id="home-queue"></div>
+            </section>
+            <section class="panel phone-card">
+              <img src="/pairing.webp" alt="" loading="lazy" width="768" height="512">
+              <div class="phone-copy"><p class="eyebrow">มือถือ</p><h2>เปิดจากโทรศัพท์</h2>
+                <details><summary>วิธีเชื่อมต่อแบบส่วนตัว</summary>
+                  <ol><li>เข้าสู่ Tailscale บนคอมและมือถือด้วยบัญชีเดียวกัน</li><li>เปิด Run Phone Access บนคอม แล้วใช้ลิงก์ที่แสดง</li><li>เปิดลิงก์บนมือถือและเพิ่มลงหน้าจอหลัก</li></ol>
+                </details>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section class="page" id="create" aria-labelledby="create-title" hidden>
+          <div class="page-head">
+            <p class="eyebrow">CREATE <span class="eyebrow-rule"></span> COMFYUI</p>
+            <h1 id="create-title">ห้องสร้างภาพ</h1>
+            <p>สร้างภาพจากข้อความ หรือแนบภาพแล้วบอกสิ่งที่อยากแก้</p>
+          </div>
+          <div class="create-layout">
+            <div>
+              <div class="section-head"><h2>เลือกงาน</h2><span id="recipe-count"></span></div>
+              <div class="recipes" id="recipes"></div>
+              <form id="create-form" class="panel compose">
+                <div class="compose-head"><div><p class="eyebrow">ตั้งค่างาน</p><h2 id="recipe-title">สร้างภาพ</h2></div><span class="pill" id="recipe-model">FLUX.2 Klein</span></div>
+                <p id="recipe-help" class="hint"></p>
+                <div class="field" id="create-upload-wrap" hidden>
+                  <label for="create-image">ภาพต้นฉบับ</label>
+                  <input id="create-image" type="file" accept="image/png,image/jpeg,image/webp">
+                  <div id="reuse" class="reuse" hidden><span id="reuse-name"></span><button type="button" class="text-button" id="clear-reuse">เอาออก</button></div>
+                </div>
+                <div class="field" id="image-size-wrap"><label for="image-size">ขนาดภาพ</label><select id="image-size"><option value="draft">ลองก่อน · 512 × 512</option><option value="square">สี่เหลี่ยม · 768 × 768</option><option value="portrait">แนวตั้ง · 768 × 1024</option><option value="landscape">แนวนอน · 1024 × 768</option></select></div>
+                <div class="field"><label for="create-text" id="prompt-label">คำบรรยาย</label><textarea id="create-text" rows="4" maxlength="5000" required></textarea></div>
+                <div class="form-actions"><span class="hint" id="recipe-detail"></span><button class="primary" type="submit">ส่งเข้าคิว <span aria-hidden="true">↗</span></button></div>
+              </form>
+            </div>
+            <aside class="panel queue-card" aria-label="คิวล่าสุด">
+              <div class="section-head"><h2>คิวล่าสุด</h2><button class="text-button" data-tab="library">ดูทั้งหมด ↗</button></div>
+              <div id="queue-summary"></div>
+              <div class="queue-note"><span class="dot"></span> งานเรนเดอร์ประมวลผลทีละงาน</div>
+            </aside>
+          </div>
+        </section>
+        <section class="page" id="chat" aria-labelledby="chat-title" hidden>
+          <div class="page-head"><p class="eyebrow">DIALOGUE <span class="eyebrow-rule"></span> LOCAL ENGINE</p><h1 id="chat-title">ห้องสนทนา</h1><p>คุย ร่างเรื่อง เขียนโค้ด หรือแนบภาพให้โมเดลอ่าน</p></div>
+          <div class="panel conversation">
+            <div class="conversation-head"><label for="chat-model">โมเดล</label><select id="chat-model"></select><button class="text-button" data-tab="settings" type="button">ตั้งค่าโมเดล</button><button class="text-button" id="new-chat" type="button">แชทใหม่</button></div>
+            <div class="persona-bar task-bar" id="chat-task-bar" hidden>
+              <label for="chat-task">โหมดงาน</label>
+              <select id="chat-task" aria-describedby="chat-task-help"></select>
+              <p class="hint" id="chat-task-help" aria-live="polite"></p>
+            </div>
+            <div class="persona-bar">
+              <label for="chat-persona">Persona</label>
+              <select id="chat-persona" aria-describedby="persona-description"></select>
+              <p class="hint" id="persona-description"></p>
+              <div class="persona-models" id="persona-models" hidden></div>
+            </div>
+            <div class="messages" id="messages" aria-live="polite"></div>
+            <p class="hint attachment-note" id="chat-vision-note" hidden></p>
+            <form class="chat-form" id="chat-form"><label class="sr-only" for="chat-text">ข้อความ</label><textarea id="chat-text" rows="3" required maxlength="3500" placeholder="พิมพ์ข้อความถึงโมเดล…"></textarea><div class="form-actions"><label class="attachment" id="chat-attachment">แนบภาพ <input id="chat-image" type="file" accept="image/png,image/jpeg,image/webp"></label><button class="primary" type="submit">ส่งข้อความ ↗</button></div></form>
+          </div>
+        </section>
+        <section class="page" id="agent" aria-labelledby="agent-title" hidden>
+          <div class="page-head"><p class="eyebrow">ACTIONS <span class="eyebrow-rule"></span> WINDOWS</p><h1 id="agent-title">งานอัตโนมัติ</h1><p>พิมพ์สิ่งที่อยากให้ทำ แล้วตรวจคำสั่งก่อนอนุมัติ</p></div>
+          <form class="panel compose agent-form" id="agent-form">
+            <div class="compose-head"><h2>งานใหม่</h2><label class="sr-only" for="agent-model">โมเดล Agent</label><select id="agent-model" aria-describedby="agent-model-help"></select></div>
+            <p class="hint" id="agent-model-help"></p>
+            <div class="field"><label for="agent-text">คำสั่ง</label><textarea id="agent-text" rows="4" maxlength="3500" required placeholder="เช่น เขียนสตอรีบอร์ด 3 ช็อตแล้วบันทึกเป็น storyboard.md"></textarea></div>
+            <div class="form-actions"><span class="hint">ตรวจคิว · อ่านหรือเขียนไฟล์ในพื้นที่ Agent · ส่งงานสร้างสื่อ</span><button type="submit" class="primary">เสนอแผน ↗</button></div>
+          </form>
+          <div id="agent-result" class="panel agent-result" aria-live="polite" hidden></div>
+          <details class="panel agent-history" id="agent-history">
+            <summary>ประวัติ Agent</summary>
+            <div id="agent-history-list"></div>
+          </details>
+        </section>
+        <section class="page" id="library" aria-labelledby="library-title" hidden>
+          <div class="page-head"><p class="eyebrow">ACTIVITY <span class="eyebrow-rule"></span> LOCAL FILES</p><h1 id="library-title">กิจกรรมและผลงาน</h1><p>ติดตามงานที่ส่งจากแอป เปิดไฟล์ และใช้ภาพทำงานต่อ</p></div>
+          <div id="library-list" class="library-list"></div>
+        </section>
+        <section class="page" id="settings" aria-labelledby="settings-title" hidden>
+          <div class="page-head"><p class="eyebrow">PREFERENCES <span class="eyebrow-rule"></span> LOCAL ENGINE</p><h1 id="settings-title">ตั้งค่าพื้นที่ทำงาน</h1><p>กำหนดการตอบ การใช้ RAM / VRAM และสิทธิ์ Agent</p></div>
+          <form id="settings-form" class="settings-form">
+            <div class="panel settings-toolbar">
+              <div><label for="settings-scope">ขอบเขตการตั้งค่า</label><select id="settings-scope"></select></div>
+              <p class="hint" id="settings-scope-help"></p>
+            </div>
+            <div class="panel settings-toolbar settings-presets">
+              <div><label for="settings-preset">ชุดค่าที่แนะนำ</label><select id="settings-preset"></select></div>
+              <p class="hint" id="settings-preset-help"></p>
+              <button class="text-button" type="button" id="settings-preset-apply">ใส่ค่าชุดนี้</button>
+            </div>
+            <div class="settings-groups" id="settings-groups"></div>
+            <div class="panel settings-actions">
+              <p class="hint" id="settings-status" role="status"></p>
+              <div class="settings-buttons">
+                <button id="settings-reset" class="text-button" type="button">คืนค่า</button>
+                <button id="settings-reload" class="text-button" type="button">โหลดค่าล่าสุด</button>
+                <button class="primary" type="submit">บันทึกการตั้งค่า</button>
+              </div>
+            </div>
+          </form>
+          <div class="panel settings-test">
+            <div><h2>ทดสอบโมเดล</h2><p class="hint">ส่งข้อความสั้นด้วยค่าที่บันทึกไว้และดูจำนวนโทเคนที่ใช้</p></div>
+            <button id="settings-test" class="text-button" type="button">ส่งข้อความทดสอบ ↗</button>
+            <p id="settings-test-result" class="hint" role="status" hidden></p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

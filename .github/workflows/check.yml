@@ -1,0 +1,37 @@
+name: Windows preview checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Check Python and web sources
+        shell: pwsh
+        run: |
+          python -m compileall -q -x '[/\\](release|\.git)[/\\]' .
+          foreach ($file in Get-ChildItem dist/*.js) {
+            node --check $file.FullName
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          $errors = $null
+          $tokens = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path bootstrap.ps1), [ref]$tokens, [ref]$errors)
+          if ($errors.Count) { throw ($errors | Out-String) }
+      - name: Verify public ZIP allowlist and checksum
+        run: python package_release.py
+      - name: Check cross-process runtime coordination
+        run: python -m unittest discover -s tests -v
+      - name: Check bootstrap discovery branches without installing Python
+        shell: pwsh
+        run: ./tests/check_bootstrap.ps1
